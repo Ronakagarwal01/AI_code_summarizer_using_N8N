@@ -1,4 +1,5 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b875931f-2142-4750-9a23-59892a24bf65" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4b361cb2-f739-4556-8c50-6d717b784999" />
+
 
 
 # AI Code Summarizer using n8n
