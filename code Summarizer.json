@@ -1,0 +1,572 @@
+{
+  "name": "code Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### STEPS \n\n1. Read the code related mail -->> trigger .\n2.summarize the code using LLM.\n3.Generate the comments for the code. \n4.step 2 and 3 to be done in parallal.\n5. merge the output of the step2 and 3. \n6. send the output to me as mail .\n",
+        "height": 176,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -976,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "88ed22bf-bd90-4e93-baf0-586f7af01338",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "sender": "ronakagarwaloffical@gmail.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -512,
+        -176
+      ],
+      "id": "15d2c618-4186-44fa-b8c2-9d6538daa1ee",
+      "name": "Gmail Trigger",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 100,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hSnWIIEyu6D5UBRQ",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=given the code below :-\ncode:\n {{ $json.text }}\n\ngenerate the comments for the code so that i can understand what each line of the code does.\nNOTE: Do not modify the exesting code lines at all . just add the comments whenever required.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "you are a helpful assistant and know how to write code in python . you can help me to understand the code by adding comments to it."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -96,
+        -432
+      ],
+      "id": "7bc8cb2d-5b65-4fe7-adc2-df45495e6547",
+      "name": "Comments_Addition"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        -240
+      ],
+      "id": "7651c8d9-3b54-432a-970d-81a2afccd6b0",
+      "name": "Google Gemini Chat Model",
+      "notesInFlow": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "8a301e06-8e84-4450-b99d-3f3e09a2e4e6",
+      "name": "Google Gemini Chat Model2",
+      "notesInFlow": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3mtg2v3HIVtKbh2J",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        384,
+        -176
+      ],
+      "id": "58301755-b1eb-44c2-b4bb-b7b7180ecdac",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Given the code below :- \n\nCode:\n\n{{ $json.text }}\n\ngenerate the summary of what this code does in very simple language . Do note that the summary should contain all the important details there are in the code so that I know what the code is about in a quick glance ",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "you are an expert in python code. You have an ability to summarize code in simple language and have the knack to cover important details in the summary ."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -112,
+        -32
+      ],
+      "id": "d72f3523-828f-4592-a608-c4389dddbe17",
+      "name": "Summarize code"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        752,
+        -192
+      ],
+      "id": "90c7a26b-4f95-47d1-8cfb-9187097e595b",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "content": "## Aggregate node \n**\n\nIt can murge 2 items into a single output as a list",
+        "height": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -336
+      ],
+      "typeVersion": 1,
+      "id": "6140177d-6276-4489-907e-feaa623e78d1",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Merge Node \n***It can Murge 2 Input item into a single output but with 2 items***",
+        "height": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        336,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "1b64f34f-7cb9-482c-9518-7101850f238b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "sendTo": "ronakagarwaloffical@gmail.com",
+        "subject": "Code Summary and coments ",
+        "message": "=\n{{ $json.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        -192
+      ],
+      "id": "00765f7e-a2cb-4761-a101-9c7cec32158f",
+      "name": "Send a message",
+      "webhookId": "ff262452-c5eb-40c0-9f29-1ae0f78b0a70",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hSnWIIEyu6D5UBRQ",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "271fc2fc-3876-4169-9cd3-e9ceb247f450",
+              "name": "Message ",
+              "value": "=code with comments :\n\n {{ $json.text[0] }}\n\ncode with summary :\n\n{{ $json.text[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        -192
+      ],
+      "id": "e570ae03-0af0-4c01-877f-4c27fac1982c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        32
+      ],
+      "id": "6ec8fc05-842b-416d-a645-1a3beef2cccf",
+      "name": "Google Gemini Chat Model3",
+      "notesInFlow": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3mtg2v3HIVtKbh2J",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## convert message into proper blocking or sequence ",
+        "height": 368
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "c2fe3bb9-6484-4934-9271-c044ee9497c4",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=converts the message into html format .\ninclude proper code blocks wherever necessary .the code blocks should have syntax highlighting for the specific language used in the code .\n\nmessage:\n {{ $json['Message '] }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "you can convert any message into html formet that can be sent on mail to the user "
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1264,
+        -192
+      ],
+      "id": "6da61d89-76a5-462d-9549-88ef42bbbcdd",
+      "name": "text message  = html formet"
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19e3b3d6032c8c4b",
+          "threadId": "19e3b3d6032c8c4b",
+          "labelIds": [
+            "UNREAD",
+            "SENT",
+            "INBOX"
+          ],
+          "sizeEstimate": 17118,
+          "headers": {
+            "return-path": "Return-Path: <ronakagarwaloffical@gmail.com>",
+            "received": "Received: from SEYPR04MB5834.apcprd04.prod.outlook.com ([2603:1046:c07:c22::5])\r\n        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5cfe78b9sm159388245ad.43.2026.05.18.06.18.58\r\n        for <ronakagarwaloffical@gmail.com>\r\n        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);\r\n        Mon, 18 May 2026 06:18:58 -0700 (PDT)",
+            "from": "From: Ronak Agarwal <ronakagarwaloffical@gmail.com>",
+            "to": "To: Ronak <ronakagarwaloffical@gmail.com>",
+            "subject": "Subject:",
+            "thread-index": "Thread-Index: AQHc5sjh5VsQqcc970it+tnxXsM7cw==",
+            "x-ms-exchange-messagesentrepresentingtype": "X-MS-Exchange-MessageSentRepresentingType: 1",
+            "date": "Date: Mon, 18 May 2026 13:18:56 +0000",
+            "message-id": "Message-ID:\r\n\t<SEYPR04MB583438B0EDC6CA1A1DFDAB86AB032@SEYPR04MB5834.apcprd04.prod.outlook.com>",
+            "accept-language": "Accept-Language: en-US",
+            "content-language": "Content-Language: en-US",
+            "x-ms-has-attach": "X-MS-Has-Attach:",
+            "x-ms-exchange-organization-scl": "X-MS-Exchange-Organization-SCL: -1",
+            "x-ms-tnef-correlator": "X-MS-TNEF-Correlator:",
+            "x-ms-exchange-organization-recordreviewcfmtype": "X-MS-Exchange-Organization-RecordReviewCfmType: 0",
+            "msip_labels": "msip_labels:",
+            "content-type": "Content-Type: multipart/alternative;\r\n\tboundary=\"_000_SEYPR04MB583438B0EDC6CA1A1DFDAB86AB032SEYPR04MB5834apcp_\"",
+            "mime-version": "MIME-Version: 1.0"
+          },
+          "html": "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n<style type=\"text/css\" style=\"display:none;\"> P {margin-top:0;margin-bottom:0;} </style>\n</head>\n<body dir=\"ltr\">\n<div style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nimport pandas as pd</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nfrom sklearn.model_selection import train_test_split</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nfrom sklearn.feature_extraction.text import CountVectorizer</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nfrom sklearn.naive_bayes import MultinomialNB</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nfrom sklearn.metrics import accuracy_score</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nimport smtplib</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nfrom email.mime.text import MIMEText</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nfrom email.mime.multipart import MIMEMultipart</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ndata = {</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; 'text': [</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; &nbsp; &nbsp; &quot;Win money now&quot;, &quot;Hello friend how are you&quot;,</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; &nbsp; &nbsp; &quot;Free lottery win&quot;, &quot;Important meeting tomorrow&quot;,</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; &nbsp; &nbsp; &quot;Claim your prize now&quot;, &quot;Let's catch up soon&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; ],</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; 'label': [1, 0, 1, 0, 1, 0]</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n}</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ndf = pd.DataFrame(data)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nvectorizer = CountVectorizer()</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nX = vectorizer.fit_transform(df['text'])</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ny = df['label']</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmodel = MultinomialNB()</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmodel.fit(X_train, y_train)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ny_pred = model.predict(X_test)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\naccuracy = accuracy_score(y_test, y_pred)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ndef predict_message(msg):</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; msg_vector = vectorizer.transform([msg])</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; prediction = model.predict(msg_vector)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n&nbsp; &nbsp; return &quot;Spam&quot; if prediction[0] == 1 else &quot;Not Spam&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ntest_msg = &quot;Congratulations! You won a free prize&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nresult = predict_message(test_msg)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nsender_email = &quot;your_email@gmail.com&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nreceiver_email = &quot;your_email@gmail.com&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\npassword = &quot;your_app_password&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nsubject = &quot;ML Prediction Result&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nbody = f&quot;Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}&quot;</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmsg = MIMEMultipart()</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmsg['From'] = sender_email</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmsg['To'] = receiver_email</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmsg['Subject'] = subject</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nmsg.attach(MIMEText(body, 'plain'))</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nserver = smtplib.SMTP('smtp.gmail.com', 587)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nserver.starttls()</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nserver.login(sender_email, password)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\ntext = msg.as_string()</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nserver.sendmail(sender_email, receiver_email, text)</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nserver.quit()</div>\n<div class=\"elementToProof\" style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\n<br>\n</div>\n<div style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\">\nprint(&quot;Email sent successfully&quot;)</div>\n</body>\n</html>\n",
+          "text": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom sklearn.naive_bayes import MultinomialNB\nfrom sklearn.metrics import accuracy_score\nimport smtplib\nfrom email.mime.text import MIMEText\nfrom email.mime.multipart import MIMEMultipart\n\ndata = {\n    'text': [\n        \"Win money now\", \"Hello friend how are you\",\n        \"Free lottery win\", \"Important meeting tomorrow\",\n        \"Claim your prize now\", \"Let's catch up soon\"\n    ],\n    'label': [1, 0, 1, 0, 1, 0]\n}\n\ndf = pd.DataFrame(data)\n\nvectorizer = CountVectorizer()\nX = vectorizer.fit_transform(df['text'])\ny = df['label']\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\nmodel = MultinomialNB()\nmodel.fit(X_train, y_train)\n\ny_pred = model.predict(X_test)\naccuracy = accuracy_score(y_test, y_pred)\n\ndef predict_message(msg):\n    msg_vector = vectorizer.transform([msg])\n    prediction = model.predict(msg_vector)\n    return \"Spam\" if prediction[0] == 1 else \"Not Spam\"\n\ntest_msg = \"Congratulations! You won a free prize\"\nresult = predict_message(test_msg)\n\nsender_email = \"your_email@gmail.com\"\nreceiver_email = \"your_email@gmail.com\"\npassword = \"your_app_password\"\n\nsubject = \"ML Prediction Result\"\nbody = f\"Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}\"\n\nmsg = MIMEMultipart()\nmsg['From'] = sender_email\nmsg['To'] = receiver_email\nmsg['Subject'] = subject\n\nmsg.attach(MIMEText(body, 'plain'))\n\nserver = smtplib.SMTP('smtp.gmail.com', 587)\nserver.starttls()\nserver.login(sender_email, password)\ntext = msg.as_string()\nserver.sendmail(sender_email, receiver_email, text)\nserver.quit()\n\nprint(\"Email sent successfully\")\n",
+          "textAsHtml": "<p>import pandas as pd<br/>from sklearn.model_selection import train_test_split<br/>from sklearn.feature_extraction.text import CountVectorizer<br/>from sklearn.naive_bayes import MultinomialNB<br/>from sklearn.metrics import accuracy_score<br/>import smtplib<br/>from email.mime.text import MIMEText<br/>from email.mime.multipart import MIMEMultipart</p><p>data = {<br/>    &apos;text&apos;: [<br/>        &quot;Win money now&quot;, &quot;Hello friend how are you&quot;,<br/>        &quot;Free lottery win&quot;, &quot;Important meeting tomorrow&quot;,<br/>        &quot;Claim your prize now&quot;, &quot;Let&apos;s catch up soon&quot;<br/>    ],<br/>    &apos;label&apos;: [1, 0, 1, 0, 1, 0]<br/>}</p><p>df = pd.DataFrame(data)</p><p>vectorizer = CountVectorizer()<br/>X = vectorizer.fit_transform(df[&apos;text&apos;])<br/>y = df[&apos;label&apos;]</p><p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)</p><p>model = MultinomialNB()<br/><a href=\"http://model.fit\">model.fit</a>(X_train, y_train)</p><p>y_pred = model.predict(X_test)<br/>accuracy = accuracy_score(y_test, y_pred)</p><p>def predict_message(msg):<br/>    msg_vector = vectorizer.transform([msg])<br/>    prediction = model.predict(msg_vector)<br/>    return &quot;Spam&quot; if prediction[0] == 1 else &quot;Not Spam&quot;</p><p>test_msg = &quot;Congratulations! You won a free prize&quot;<br/>result = predict_message(test_msg)</p><p>sender_email = &quot;<a href=\"mailto:your_email@gmail.com\">your_email@gmail.com</a>&quot;<br/>receiver_email = &quot;<a href=\"mailto:your_email@gmail.com\">your_email@gmail.com</a>&quot;<br/>password = &quot;your_app_password&quot;</p><p>subject = &quot;ML Prediction Result&quot;<br/>body = f&quot;Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}&quot;</p><p>msg = MIMEMultipart()<br/>msg[&apos;From&apos;] = sender_email<br/>msg[&apos;To&apos;] = receiver_email<br/>msg[&apos;Subject&apos;] = subject</p><p>msg.attach(MIMEText(body, &apos;plain&apos;))</p><p>server = smtplib.SMTP(&apos;<a href=\"http://smtp.gmail.com\">smtp.gmail.com</a>&apos;, 587)<br/>server.starttls()<br/>server.login(sender_email, password)<br/>text = msg.as_string()<br/>server.sendmail(sender_email, receiver_email, text)<br/>server.quit()</p><p>print(&quot;Email sent successfully&quot;)</p>",
+          "date": "2026-05-18T13:18:56.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "ronakagarwaloffical@gmail.com",
+                "name": "Ronak"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Ronak</span> &lt;<a href=\"mailto:ronakagarwaloffical@gmail.com\" class=\"mp_address_email\">ronakagarwaloffical@gmail.com</a>&gt;</span>",
+            "text": "\"Ronak\" <ronakagarwaloffical@gmail.com>"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "ronakagarwaloffical@gmail.com",
+                "name": "Ronak Agarwal"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Ronak Agarwal</span> &lt;<a href=\"mailto:ronakagarwaloffical@gmail.com\" class=\"mp_address_email\">ronakagarwaloffical@gmail.com</a>&gt;</span>",
+            "text": "\"Ronak Agarwal\" <ronakagarwaloffical@gmail.com>"
+          },
+          "messageId": "<SEYPR04MB583438B0EDC6CA1A1DFDAB86AB032@SEYPR04MB5834.apcprd04.prod.outlook.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Comments_Addition": [
+      {
+        "json": {
+          "text": "Here is your code with detailed comments added to explain what each part does:\n\n```python\n# Import pandas for data manipulation and analysis\nimport pandas as pd\n# Import train_test_split to divide data into training and testing sets\nfrom sklearn.model_selection import train_test_split\n# Import CountVectorizer to convert text data into numerical vectors (Bag of Words)\nfrom sklearn.feature_extraction.text import CountVectorizer\n# Import Multinomial Naive Bayes algorithm, commonly used for text classification\nfrom sklearn.naive_bayes import MultinomialNB\n# Import accuracy_score to evaluate how well the model performed\nfrom sklearn.metrics import accuracy_score\n# Import smtplib to handle the Simple Mail Transfer Protocol for sending emails\nimport smtplib\n# Import email modules to structure the email message correctly\nfrom email.mime.text import MIMEText\nfrom email.mime.multipart import MIMEMultipart\n\n# Create a sample dictionary containing text messages and their labels (1 for Spam, 0 for Not Spam)\ndata = {\n    'text': [\n        \"Win money now\", \"Hello friend how are you\",\n        \"Free lottery win\", \"Important meeting tomorrow\",\n        \"Claim your prize now\", \"Let's catch up soon\"\n    ],\n    'label': [1, 0, 1, 0, 1, 0]\n}\n\n# Convert the dictionary into a Pandas DataFrame for easier processing\ndf = pd.DataFrame(data)\n\n# Initialize the vectorizer to convert text into a matrix of token counts\nvectorizer = CountVectorizer()\n# Transform the 'text' column into numerical features (X)\nX = vectorizer.fit_transform(df['text'])\n# Define the target variable (y) which the model will try to predict\ny = df['label']\n\n# Split the data: 80% for training the model and 20% for testing its performance\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\n# Initialize the Naive Bayes classifier\nmodel = MultinomialNB()\n# Train (fit) the model using the training data\nmodel.fit(X_train, y_train)\n\n# Use the trained model to make predictions on the test data\ny_pred = model.predict(X_test)\n# Calculate the accuracy by comparing predictions to the actual labels\naccuracy = accuracy_score(y_test, y_pred)\n\n# Define a function to take a new string and predict if it is Spam or Not Spam\ndef predict_message(msg):\n    # Convert the input message into the same numerical format used during training\n    msg_vector = vectorizer.transform([msg])\n    # Predict the class (0 or 1)\n    prediction = model.predict(msg_vector)\n    # Return a readable string based on the prediction result\n    return \"Spam\" if prediction[0] == 1 else \"Not Spam\"\n\n# Test the model with a new custom message\ntest_msg = \"Congratulations! You won a free prize\"\nresult = predict_message(test_msg)\n\n# Email configuration: Replace these with your actual credentials\nsender_email = \"your_email@gmail.com\"\nreceiver_email = \"your_email@gmail.com\"\npassword = \"your_app_password\" # Use an App Password if using Gmail, not your main password\n\n# Define the email content\nsubject = \"ML Prediction Result\"\nbody = f\"Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}\"\n\n# Create a MIMEMultipart object to hold the email headers and body\nmsg = MIMEMultipart()\nmsg['From'] = sender_email\nmsg['To'] = receiver_email\nmsg['Subject'] = subject\n\n# Attach the plain text body to the email\nmsg.attach(MIMEText(body, 'plain'))\n\n# Connect to the Gmail SMTP server using port 587\nserver = smtplib.SMTP('smtp.gmail.com', 587)\n# Put the SMTP connection in TLS (Transport Layer Security) mode for security\nserver.starttls()\n# Log in to the email account\nserver.login(sender_email, password)\n# Convert the MIMEMultipart object into a string format\ntext = msg.as_string()\n# Send the email\nserver.sendmail(sender_email, receiver_email, text)\n# Terminate the SMTP session\nserver.quit()\n\n# Print confirmation to the console\nprint(\"Email sent successfully\")\n```\n\n### Important Note for the Email Section:\nTo make the email code work with Gmail:\n1.  **Two-Factor Authentication (2FA)** must be enabled on your Google account.\n2.  You must generate an **\"App Password\"** from your Google Account settings and use that instead of your regular password.\n3.  The code will fail if you use your standard login password due to Google's security protocols."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Summarize code": [
+      {
+        "json": {
+          "text": "This script builds a simple **Spam Detection system** using Machine Learning and automatically **emails the results** to a user.\n\nHere is the breakdown of the important details:\n\n1.  **Data Creation:** It starts with a small, manual dataset of text messages labeled as either `1` (Spam) or `0` (Not Spam) using the `pandas` library.\n2.  **Text Processing:** Since computers don't understand words, it uses a tool called `CountVectorizer` to convert the text messages into a grid of numbers (word counts).\n3.  **Model Training:** \n    *   It splits the data into a **training set** (to teach the model) and a **test set** (to check its accuracy).\n    *   It uses the **Multinomial Naive Bayes** algorithm—a classic and effective choice for categorizing text—to learn the difference between spam and normal messages.\n4.  **Prediction:** The script provides a specific test message (*\"Congratulations! You won a free prize\"*) and asks the trained model to predict if it is \"Spam\" or \"Not Spam.\"\n5.  **Email Automation:** Finally, it uses the `smtplib` library to:\n    *   Connect to a Gmail server.\n    *   Log in using provided credentials.\n    *   Send an automated email containing the original message, the model’s prediction, and the model's accuracy score.\n\n**In short:** It teaches a computer to recognize spam and then sends a report of its findings via email."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Merge": [
+      {
+        "json": {
+          "text": "Here is your code with detailed comments added to explain what each part does:\n\n```python\n# Import pandas for data manipulation and analysis\nimport pandas as pd\n# Import train_test_split to divide data into training and testing sets\nfrom sklearn.model_selection import train_test_split\n# Import CountVectorizer to convert text data into numerical vectors (Bag of Words)\nfrom sklearn.feature_extraction.text import CountVectorizer\n# Import Multinomial Naive Bayes algorithm, commonly used for text classification\nfrom sklearn.naive_bayes import MultinomialNB\n# Import accuracy_score to evaluate how well the model performed\nfrom sklearn.metrics import accuracy_score\n# Import smtplib to handle the Simple Mail Transfer Protocol for sending emails\nimport smtplib\n# Import email modules to structure the email message correctly\nfrom email.mime.text import MIMEText\nfrom email.mime.multipart import MIMEMultipart\n\n# Create a sample dictionary containing text messages and their labels (1 for Spam, 0 for Not Spam)\ndata = {\n    'text': [\n        \"Win money now\", \"Hello friend how are you\",\n        \"Free lottery win\", \"Important meeting tomorrow\",\n        \"Claim your prize now\", \"Let's catch up soon\"\n    ],\n    'label': [1, 0, 1, 0, 1, 0]\n}\n\n# Convert the dictionary into a Pandas DataFrame for easier processing\ndf = pd.DataFrame(data)\n\n# Initialize the vectorizer to convert text into a matrix of token counts\nvectorizer = CountVectorizer()\n# Transform the 'text' column into numerical features (X)\nX = vectorizer.fit_transform(df['text'])\n# Define the target variable (y) which the model will try to predict\ny = df['label']\n\n# Split the data: 80% for training the model and 20% for testing its performance\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\n# Initialize the Naive Bayes classifier\nmodel = MultinomialNB()\n# Train (fit) the model using the training data\nmodel.fit(X_train, y_train)\n\n# Use the trained model to make predictions on the test data\ny_pred = model.predict(X_test)\n# Calculate the accuracy by comparing predictions to the actual labels\naccuracy = accuracy_score(y_test, y_pred)\n\n# Define a function to take a new string and predict if it is Spam or Not Spam\ndef predict_message(msg):\n    # Convert the input message into the same numerical format used during training\n    msg_vector = vectorizer.transform([msg])\n    # Predict the class (0 or 1)\n    prediction = model.predict(msg_vector)\n    # Return a readable string based on the prediction result\n    return \"Spam\" if prediction[0] == 1 else \"Not Spam\"\n\n# Test the model with a new custom message\ntest_msg = \"Congratulations! You won a free prize\"\nresult = predict_message(test_msg)\n\n# Email configuration: Replace these with your actual credentials\nsender_email = \"your_email@gmail.com\"\nreceiver_email = \"your_email@gmail.com\"\npassword = \"your_app_password\" # Use an App Password if using Gmail, not your main password\n\n# Define the email content\nsubject = \"ML Prediction Result\"\nbody = f\"Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}\"\n\n# Create a MIMEMultipart object to hold the email headers and body\nmsg = MIMEMultipart()\nmsg['From'] = sender_email\nmsg['To'] = receiver_email\nmsg['Subject'] = subject\n\n# Attach the plain text body to the email\nmsg.attach(MIMEText(body, 'plain'))\n\n# Connect to the Gmail SMTP server using port 587\nserver = smtplib.SMTP('smtp.gmail.com', 587)\n# Put the SMTP connection in TLS (Transport Layer Security) mode for security\nserver.starttls()\n# Log in to the email account\nserver.login(sender_email, password)\n# Convert the MIMEMultipart object into a string format\ntext = msg.as_string()\n# Send the email\nserver.sendmail(sender_email, receiver_email, text)\n# Terminate the SMTP session\nserver.quit()\n\n# Print confirmation to the console\nprint(\"Email sent successfully\")\n```\n\n### Important Note for the Email Section:\nTo make the email code work with Gmail:\n1.  **Two-Factor Authentication (2FA)** must be enabled on your Google account.\n2.  You must generate an **\"App Password\"** from your Google Account settings and use that instead of your regular password.\n3.  The code will fail if you use your standard login password due to Google's security protocols."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "text": "This script builds a simple **Spam Detection system** using Machine Learning and automatically **emails the results** to a user.\n\nHere is the breakdown of the important details:\n\n1.  **Data Creation:** It starts with a small, manual dataset of text messages labeled as either `1` (Spam) or `0` (Not Spam) using the `pandas` library.\n2.  **Text Processing:** Since computers don't understand words, it uses a tool called `CountVectorizer` to convert the text messages into a grid of numbers (word counts).\n3.  **Model Training:** \n    *   It splits the data into a **training set** (to teach the model) and a **test set** (to check its accuracy).\n    *   It uses the **Multinomial Naive Bayes** algorithm—a classic and effective choice for categorizing text—to learn the difference between spam and normal messages.\n4.  **Prediction:** The script provides a specific test message (*\"Congratulations! You won a free prize\"*) and asks the trained model to predict if it is \"Spam\" or \"Not Spam.\"\n5.  **Email Automation:** Finally, it uses the `smtplib` library to:\n    *   Connect to a Gmail server.\n    *   Log in using provided credentials.\n    *   Send an automated email containing the original message, the model’s prediction, and the model's accuracy score.\n\n**In short:** It teaches a computer to recognize spam and then sends a report of its findings via email."
+        },
+        "pairedItem": {
+          "item": 0,
+          "input": 1
+        }
+      }
+    ],
+    "Aggregate": [
+      {
+        "json": {
+          "text": [
+            "Here is your code with detailed comments added to explain what each part does:\n\n```python\n# Import pandas for data manipulation and analysis\nimport pandas as pd\n# Import train_test_split to divide data into training and testing sets\nfrom sklearn.model_selection import train_test_split\n# Import CountVectorizer to convert text data into numerical vectors (Bag of Words)\nfrom sklearn.feature_extraction.text import CountVectorizer\n# Import Multinomial Naive Bayes algorithm, commonly used for text classification\nfrom sklearn.naive_bayes import MultinomialNB\n# Import accuracy_score to evaluate how well the model performed\nfrom sklearn.metrics import accuracy_score\n# Import smtplib to handle the Simple Mail Transfer Protocol for sending emails\nimport smtplib\n# Import email modules to structure the email message correctly\nfrom email.mime.text import MIMEText\nfrom email.mime.multipart import MIMEMultipart\n\n# Create a sample dictionary containing text messages and their labels (1 for Spam, 0 for Not Spam)\ndata = {\n    'text': [\n        \"Win money now\", \"Hello friend how are you\",\n        \"Free lottery win\", \"Important meeting tomorrow\",\n        \"Claim your prize now\", \"Let's catch up soon\"\n    ],\n    'label': [1, 0, 1, 0, 1, 0]\n}\n\n# Convert the dictionary into a Pandas DataFrame for easier processing\ndf = pd.DataFrame(data)\n\n# Initialize the vectorizer to convert text into a matrix of token counts\nvectorizer = CountVectorizer()\n# Transform the 'text' column into numerical features (X)\nX = vectorizer.fit_transform(df['text'])\n# Define the target variable (y) which the model will try to predict\ny = df['label']\n\n# Split the data: 80% for training the model and 20% for testing its performance\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\n# Initialize the Naive Bayes classifier\nmodel = MultinomialNB()\n# Train (fit) the model using the training data\nmodel.fit(X_train, y_train)\n\n# Use the trained model to make predictions on the test data\ny_pred = model.predict(X_test)\n# Calculate the accuracy by comparing predictions to the actual labels\naccuracy = accuracy_score(y_test, y_pred)\n\n# Define a function to take a new string and predict if it is Spam or Not Spam\ndef predict_message(msg):\n    # Convert the input message into the same numerical format used during training\n    msg_vector = vectorizer.transform([msg])\n    # Predict the class (0 or 1)\n    prediction = model.predict(msg_vector)\n    # Return a readable string based on the prediction result\n    return \"Spam\" if prediction[0] == 1 else \"Not Spam\"\n\n# Test the model with a new custom message\ntest_msg = \"Congratulations! You won a free prize\"\nresult = predict_message(test_msg)\n\n# Email configuration: Replace these with your actual credentials\nsender_email = \"your_email@gmail.com\"\nreceiver_email = \"your_email@gmail.com\"\npassword = \"your_app_password\" # Use an App Password if using Gmail, not your main password\n\n# Define the email content\nsubject = \"ML Prediction Result\"\nbody = f\"Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}\"\n\n# Create a MIMEMultipart object to hold the email headers and body\nmsg = MIMEMultipart()\nmsg['From'] = sender_email\nmsg['To'] = receiver_email\nmsg['Subject'] = subject\n\n# Attach the plain text body to the email\nmsg.attach(MIMEText(body, 'plain'))\n\n# Connect to the Gmail SMTP server using port 587\nserver = smtplib.SMTP('smtp.gmail.com', 587)\n# Put the SMTP connection in TLS (Transport Layer Security) mode for security\nserver.starttls()\n# Log in to the email account\nserver.login(sender_email, password)\n# Convert the MIMEMultipart object into a string format\ntext = msg.as_string()\n# Send the email\nserver.sendmail(sender_email, receiver_email, text)\n# Terminate the SMTP session\nserver.quit()\n\n# Print confirmation to the console\nprint(\"Email sent successfully\")\n```\n\n### Important Note for the Email Section:\nTo make the email code work with Gmail:\n1.  **Two-Factor Authentication (2FA)** must be enabled on your Google account.\n2.  You must generate an **\"App Password\"** from your Google Account settings and use that instead of your regular password.\n3.  The code will fail if you use your standard login password due to Google's security protocols.",
+            "This script builds a simple **Spam Detection system** using Machine Learning and automatically **emails the results** to a user.\n\nHere is the breakdown of the important details:\n\n1.  **Data Creation:** It starts with a small, manual dataset of text messages labeled as either `1` (Spam) or `0` (Not Spam) using the `pandas` library.\n2.  **Text Processing:** Since computers don't understand words, it uses a tool called `CountVectorizer` to convert the text messages into a grid of numbers (word counts).\n3.  **Model Training:** \n    *   It splits the data into a **training set** (to teach the model) and a **test set** (to check its accuracy).\n    *   It uses the **Multinomial Naive Bayes** algorithm—a classic and effective choice for categorizing text—to learn the difference between spam and normal messages.\n4.  **Prediction:** The script provides a specific test message (*\"Congratulations! You won a free prize\"*) and asks the trained model to predict if it is \"Spam\" or \"Not Spam.\"\n5.  **Email Automation:** Finally, it uses the `smtplib` library to:\n    *   Connect to a Gmail server.\n    *   Log in using provided credentials.\n    *   Send an automated email containing the original message, the model’s prediction, and the model's accuracy score.\n\n**In short:** It teaches a computer to recognize spam and then sends a report of its findings via email."
+          ]
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          },
+          {
+            "item": 1
+          }
+        ]
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "Message ": "code with comments :\n\n Here is your code with detailed comments added to explain what each part does:\n\n```python\n# Import pandas for data manipulation and analysis\nimport pandas as pd\n# Import train_test_split to divide data into training and testing sets\nfrom sklearn.model_selection import train_test_split\n# Import CountVectorizer to convert text data into numerical vectors (Bag of Words)\nfrom sklearn.feature_extraction.text import CountVectorizer\n# Import Multinomial Naive Bayes algorithm, commonly used for text classification\nfrom sklearn.naive_bayes import MultinomialNB\n# Import accuracy_score to evaluate how well the model performed\nfrom sklearn.metrics import accuracy_score\n# Import smtplib to handle the Simple Mail Transfer Protocol for sending emails\nimport smtplib\n# Import email modules to structure the email message correctly\nfrom email.mime.text import MIMEText\nfrom email.mime.multipart import MIMEMultipart\n\n# Create a sample dictionary containing text messages and their labels (1 for Spam, 0 for Not Spam)\ndata = {\n    'text': [\n        \"Win money now\", \"Hello friend how are you\",\n        \"Free lottery win\", \"Important meeting tomorrow\",\n        \"Claim your prize now\", \"Let's catch up soon\"\n    ],\n    'label': [1, 0, 1, 0, 1, 0]\n}\n\n# Convert the dictionary into a Pandas DataFrame for easier processing\ndf = pd.DataFrame(data)\n\n# Initialize the vectorizer to convert text into a matrix of token counts\nvectorizer = CountVectorizer()\n# Transform the 'text' column into numerical features (X)\nX = vectorizer.fit_transform(df['text'])\n# Define the target variable (y) which the model will try to predict\ny = df['label']\n\n# Split the data: 80% for training the model and 20% for testing its performance\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\n# Initialize the Naive Bayes classifier\nmodel = MultinomialNB()\n# Train (fit) the model using the training data\nmodel.fit(X_train, y_train)\n\n# Use the trained model to make predictions on the test data\ny_pred = model.predict(X_test)\n# Calculate the accuracy by comparing predictions to the actual labels\naccuracy = accuracy_score(y_test, y_pred)\n\n# Define a function to take a new string and predict if it is Spam or Not Spam\ndef predict_message(msg):\n    # Convert the input message into the same numerical format used during training\n    msg_vector = vectorizer.transform([msg])\n    # Predict the class (0 or 1)\n    prediction = model.predict(msg_vector)\n    # Return a readable string based on the prediction result\n    return \"Spam\" if prediction[0] == 1 else \"Not Spam\"\n\n# Test the model with a new custom message\ntest_msg = \"Congratulations! You won a free prize\"\nresult = predict_message(test_msg)\n\n# Email configuration: Replace these with your actual credentials\nsender_email = \"your_email@gmail.com\"\nreceiver_email = \"your_email@gmail.com\"\npassword = \"your_app_password\" # Use an App Password if using Gmail, not your main password\n\n# Define the email content\nsubject = \"ML Prediction Result\"\nbody = f\"Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}\"\n\n# Create a MIMEMultipart object to hold the email headers and body\nmsg = MIMEMultipart()\nmsg['From'] = sender_email\nmsg['To'] = receiver_email\nmsg['Subject'] = subject\n\n# Attach the plain text body to the email\nmsg.attach(MIMEText(body, 'plain'))\n\n# Connect to the Gmail SMTP server using port 587\nserver = smtplib.SMTP('smtp.gmail.com', 587)\n# Put the SMTP connection in TLS (Transport Layer Security) mode for security\nserver.starttls()\n# Log in to the email account\nserver.login(sender_email, password)\n# Convert the MIMEMultipart object into a string format\ntext = msg.as_string()\n# Send the email\nserver.sendmail(sender_email, receiver_email, text)\n# Terminate the SMTP session\nserver.quit()\n\n# Print confirmation to the console\nprint(\"Email sent successfully\")\n```\n\n### Important Note for the Email Section:\nTo make the email code work with Gmail:\n1.  **Two-Factor Authentication (2FA)** must be enabled on your Google account.\n2.  You must generate an **\"App Password\"** from your Google Account settings and use that instead of your regular password.\n3.  The code will fail if you use your standard login password due to Google's security protocols.\n\ncode with summary :\n\nThis script builds a simple **Spam Detection system** using Machine Learning and automatically **emails the results** to a user.\n\nHere is the breakdown of the important details:\n\n1.  **Data Creation:** It starts with a small, manual dataset of text messages labeled as either `1` (Spam) or `0` (Not Spam) using the `pandas` library.\n2.  **Text Processing:** Since computers don't understand words, it uses a tool called `CountVectorizer` to convert the text messages into a grid of numbers (word counts).\n3.  **Model Training:** \n    *   It splits the data into a **training set** (to teach the model) and a **test set** (to check its accuracy).\n    *   It uses the **Multinomial Naive Bayes** algorithm—a classic and effective choice for categorizing text—to learn the difference between spam and normal messages.\n4.  **Prediction:** The script provides a specific test message (*\"Congratulations! You won a free prize\"*) and asks the trained model to predict if it is \"Spam\" or \"Not Spam.\"\n5.  **Email Automation:** Finally, it uses the `smtplib` library to:\n    *   Connect to a Gmail server.\n    *   Log in using provided credentials.\n    *   Send an automated email containing the original message, the model’s prediction, and the model's accuracy score.\n\n**In short:** It teaches a computer to recognize spam and then sends a report of its findings via email."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "text message  = html formet": [
+      {
+        "json": {
+          "text": "This message has been converted into a professional HTML format suitable for email. It includes syntax highlighting for the Python code and structured sections for readability.\n\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>ML Code and Summary</title>\n</head>\n<body style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px;\">\n\n    <div style=\"max-width: 800px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 5px rgba(0,0,0,0.1);\">\n        \n        <h2 style=\"color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;\">Code with Comments</h2>\n        \n        <p>Here is your code with detailed comments added to explain what each part does:</p>\n\n        <!-- Code Block Container -->\n        <div style=\"background-color: #282c34; border-radius: 6px; padding: 20px; overflow-x: auto; margin: 20px 0;\">\n            <pre style=\"margin: 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; color: #abb2bf; line-height: 1.5;\">\n<span style=\"color: #5c6370; font-style: italic;\"># Import pandas for data manipulation and analysis</span>\n<span style=\"color: #c678dd;\">import</span> pandas <span style=\"color: #c678dd;\">as</span> pd\n<span style=\"color: #5c6370; font-style: italic;\"># Import train_test_split to divide data into training and testing sets</span>\n<span style=\"color: #c678dd;\">from</span> sklearn.model_selection <span style=\"color: #c678dd;\">import</span> train_test_split\n<span style=\"color: #5c6370; font-style: italic;\"># Import CountVectorizer to convert text data into numerical vectors (Bag of Words)</span>\n<span style=\"color: #c678dd;\">from</span> sklearn.feature_extraction.text <span style=\"color: #c678dd;\">import</span> CountVectorizer\n<span style=\"color: #5c6370; font-style: italic;\"># Import Multinomial Naive Bayes algorithm, commonly used for text classification</span>\n<span style=\"color: #c678dd;\">from</span> sklearn.naive_bayes <span style=\"color: #c678dd;\">import</span> MultinomialNB\n<span style=\"color: #5c6370; font-style: italic;\"># Import accuracy_score to evaluate how well the model performed</span>\n<span style=\"color: #c678dd;\">from</span> sklearn.metrics <span style=\"color: #c678dd;\">import</span> accuracy_score\n<span style=\"color: #5c6370; font-style: italic;\"># Import smtplib to handle the Simple Mail Transfer Protocol for sending emails</span>\n<span style=\"color: #c678dd;\">import</span> smtplib\n<span style=\"color: #5c6370; font-style: italic;\"># Import email modules to structure the email message correctly</span>\n<span style=\"color: #c678dd;\">from</span> email.mime.text <span style=\"color: #c678dd;\">import</span> MIMEText\n<span style=\"color: #c678dd;\">from</span> email.mime.multipart <span style=\"color: #c678dd;\">import</span> MIMEMultipart\n\n<span style=\"color: #5c6370; font-style: italic;\"># Create a sample dictionary containing text messages and their labels (1 for Spam, 0 for Not Spam)</span>\ndata = {\n    <span style=\"color: #98c379;\">'text'</span>: [\n        <span style=\"color: #98c379;\">\"Win money now\"</span>, <span style=\"color: #98c379;\">\"Hello friend how are you\"</span>,\n        <span style=\"color: #98c379;\">\"Free lottery win\"</span>, <span style=\"color: #98c379;\">\"Important meeting tomorrow\"</span>,\n        <span style=\"color: #98c379;\">\"Claim your prize now\"</span>, <span style=\"color: #98c379;\">\"Let's catch up soon\"</span>\n    ],\n    <span style=\"color: #98c379;\">'label'</span>: [<span style=\"color: #d19a66;\">1</span>, <span style=\"color: #d19a66;\">0</span>, <span style=\"color: #d19a66;\">1</span>, <span style=\"color: #d19a66;\">0</span>, <span style=\"color: #d19a66;\">1</span>, <span style=\"color: #d19a66;\">0</span>]\n}\n\n<span style=\"color: #5c6370; font-style: italic;\"># Convert the dictionary into a Pandas DataFrame for easier processing</span>\ndf = pd.DataFrame(data)\n\n<span style=\"color: #5c6370; font-style: italic;\"># Initialize the vectorizer to convert text into a matrix of token counts</span>\nvectorizer = CountVectorizer()\n<span style=\"color: #5c6370; font-style: italic;\"># Transform the 'text' column into numerical features (X)</span>\nX = vectorizer.fit_transform(df[<span style=\"color: #98c379;\">'text'</span>])\n<span style=\"color: #5c6370; font-style: italic;\"># Define the target variable (y) which the model will try to predict</span>\ny = df[<span style=\"color: #98c379;\">'label'</span>]\n\n<span style=\"color: #5c6370; font-style: italic;\"># Split the data: 80% for training the model and 20% for testing its performance</span>\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span style=\"color: #d19a66;\">0.2</span>)\n\n<span style=\"color: #5c6370; font-style: italic;\"># Initialize the Naive Bayes classifier</span>\nmodel = MultinomialNB()\n<span style=\"color: #5c6370; font-style: italic;\"># Train (fit) the model using the training data</span>\nmodel.fit(X_train, y_train)\n\n<span style=\"color: #5c6370; font-style: italic;\"># Use the trained model to make predictions on the test data</span>\ny_pred = model.predict(X_test)\n<span style=\"color: #5c6370; font-style: italic;\"># Calculate the accuracy by comparing predictions to the actual labels</span>\naccuracy = accuracy_score(y_test, y_pred)\n\n<span style=\"color: #5c6370; font-style: italic;\"># Define a function to take a new string and predict if it is Spam or Not Spam</span>\n<span style=\"color: #c678dd;\">def</span> <span style=\"color: #61afef;\">predict_message</span>(msg):\n    <span style=\"color: #5c6370; font-style: italic;\"># Convert the input message into the same numerical format used during training</span>\n    msg_vector = vectorizer.transform([msg])\n    <span style=\"color: #5c6370; font-style: italic;\"># Predict the class (0 or 1)</span>\n    prediction = model.predict(msg_vector)\n    <span style=\"color: #5c6370; font-style: italic;\"># Return a readable string based on the prediction result</span>\n    <span style=\"color: #c678dd;\">return</span> <span style=\"color: #98c379;\">\"Spam\"</span> <span style=\"color: #c678dd;\">if</span> prediction[<span style=\"color: #d19a66;\">0</span>] == <span style=\"color: #d19a66;\">1</span> <span style=\"color: #c678dd;\">else</span> <span style=\"color: #98c379;\">\"Not Spam\"</span>\n\n<span style=\"color: #5c6370; font-style: italic;\"># Test the model with a new custom message</span>\ntest_msg = <span style=\"color: #98c379;\">\"Congratulations! You won a free prize\"</span>\nresult = predict_message(test_msg)\n\n<span style=\"color: #5c6370; font-style: italic;\"># Email configuration</span>\nsender_email = <span style=\"color: #98c379;\">\"your_email@gmail.com\"</span>\nreceiver_email = <span style=\"color: #98c379;\">\"your_email@gmail.com\"</span>\npassword = <span style=\"color: #98c379;\">\"your_app_password\"</span> \n\n<span style=\"color: #5c6370; font-style: italic;\"># Define the email content</span>\nsubject = <span style=\"color: #98c379;\">\"ML Prediction Result\"</span>\nbody = <span style=\"color: #98c379;\">f\"Message: {test_msg}\\nPrediction: {result}\\nAccuracy: {accuracy}\"</span>\n\n<span style=\"color: #5c6370; font-style: italic;\"># Create a MIMEMultipart object</span>\nmsg = MIMEMultipart()\nmsg[<span style=\"color: #98c379;\">'From'</span>] = sender_email\nmsg[<span style=\"color: #98c379;\">'To'</span>] = receiver_email\nmsg[<span style=\"color: #98c379;\">'Subject'</span>] = subject\n\nmsg.attach(MIMEText(body, <span style=\"color: #98c379;\">'plain'</span>))\n\n<span style=\"color: #5c6370; font-style: italic;\"># SMTP Connection</span>\nserver = smtplib.SMTP(<span style=\"color: #98c379;\">'smtp.gmail.com'</span>, <span style=\"color: #d19a66;\">587</span>)\nserver.starttls()\nserver.login(sender_email, password)\ntext = msg.as_string()\nserver.sendmail(sender_email, receiver_email, text)\nserver.quit()\n\nprint(<span style=\"color: #98c379;\">\"Email sent successfully\"</span>)\n            </pre>\n        </div>\n\n        <!-- Note Section -->\n        <div style=\"background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin: 20px 0; color: #856404;\">\n            <strong style=\"font-size: 1.1em;\">⚠️ Important Note for the Email Section:</strong>\n            <p style=\"margin-top: 10px;\">To make the email code work with Gmail:</p>\n            <ol>\n                <li><strong>Two-Factor Authentication (2FA)</strong> must be enabled on your Google account.</li>\n                <li>You must generate an <strong>\"App Password\"</strong> from your Google Account settings and use that instead of your regular password.</li>\n                <li>The code will fail if you use your standard login password due to Google's security protocols.</li>\n            </ol>\n        </div>\n\n        <h2 style=\"color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;\">Code Summary</h2>\n        <p>This script builds a simple <strong>Spam Detection system</strong> using Machine Learning and automatically <strong>emails the results</strong> to a user.</p>\n        \n        <ul style=\"padding-left: 20px;\">\n            <li style=\"margin-bottom: 10px;\"><strong>Data Creation:</strong> Starts with a small dataset of text messages labeled as 1 (Spam) or 0 (Not Spam) using <code>pandas</code>.</li>\n            <li style=\"margin-bottom: 10px;\"><strong>Text Processing:</strong> Uses <code>CountVectorizer</code> to convert words into numerical data that the computer can process.</li>\n            <li style=\"margin-bottom: 10px;\"><strong>Model Training:</strong> Utilizes the <strong>Multinomial Naive Bayes</strong> algorithm to learn differences between spam and valid messages.</li>\n            <li style=\"margin-bottom: 10px;\"><strong>Prediction:</strong> Tests the model with a custom string and categorizes it accordingly.</li>\n            <li style=\"margin-bottom: 10px;\"><strong>Email Automation:</strong> Uses <code>smtplib</code> to log into a Gmail server and send a report including the prediction and accuracy score.</li>\n        </ul>\n\n        <div style=\"text-align: center; margin-top: 30px; font-size: 0.9em; color: #7f8c8d;\">\n            <p>Sent via ML Automation System</p>\n        </div>\n    </div>\n\n</body>\n</html>\n```"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Summarize code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Comments_Addition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Comments_Addition",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize code",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comments_Addition": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "text message  = html formet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "text message  = html formet",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text message  = html formet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7069005e-bde1-41eb-97d7-64ea8e918bdb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2e23ab55c316c414ef461799b94a7297aeb0152fa03eb55a030e89d6d49294b5"
+  },
+  "id": "QBMstAdemssq6tQI",
+  "tags": []
+}
